@@ -2,10 +2,10 @@
 
 import type { NextPage } from "next";
 import { useState } from "react";
-import Chat from "./components/Chat";
-import InputForm from "./components/InputForm";
-import { Message } from "./types";
-import { system_prompt } from "./constants";
+import Chat from "@/components/Chat";
+import InputForm from "@/components/InputForm";
+import { Message } from "@/types";
+import { system_prompt } from "@/constants";
 
 const Home: NextPage = () => {
 
