@@ -1,5 +1,6 @@
 import { NextResponse, NextRequest } from 'next/server';
 import { Configuration, OpenAIApi } from "openai";
+import { extractKeyword } from "@/features/langchain";
 
 // 発行したAPI Keyを使って設定を定義
 const configuration = new Configuration({
@@ -16,19 +17,18 @@ export async function POST(req: NextRequest) {
     })
   }
 
+  console.log('call');
+
   // Bodyを取得
   const body = await req.json();
 
+  console.log(body);
+
   try {
     // 設定を諸々のせてAPIとやり取り
-    const completion = await openai.createChatCompletion({
-      model: "gpt-3.5-turbo",
-      messages: body.message,
-      temperature: 0.9,
-      max_tokens: 100,
-    });
+    const keywords = await extractKeyword(body.url);
 
-    return NextResponse.json({ result: completion.data.choices[0].message })
+    return NextResponse.json({ result: keywords })
   } catch (error: any) {
     if (error.response) {
       console.error(`${error.response.status}: ${error.response.data}`);

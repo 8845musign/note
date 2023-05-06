@@ -2,39 +2,26 @@
 
 import type { NextPage } from "next";
 import { useState } from "react";
-import Chat from "@/components/Chat";
-import InputForm from "@/components/InputForm";
-import { Message } from "@/types";
-import { system_prompt } from "@/constants";
 
 const Home: NextPage = () => {
-
-  // chats:メッセージのリストを保持。初期値としてシステムメッセージ（system_prompt）を入れておく
-  const [chats, setChats] = useState<Message[]>([
-    {
-      role: "system",
-      content: system_prompt,
-    },
-  ]);
   // isSubmitting: メッセージ送信中かどうかのフラグ。GPTの返答待ちの間「・・・」のアニメーションを表示
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [urlLoaded, setUrlLoaded] = useState<string>('');
+  const [url, setUrl] = useState<string>('');
 
-  const handleSubmit = async (message: Message) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+
     try {
-      setIsSubmitting(true);
-      setChats((prev) => [...prev, message]);
-
       // ChatGPT APIと通信
-      const response = await fetch("/api/messages", {
+      const response = await fetch("/api/extractKeyword", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          message: [...chats, message].map((d) => ({
-            role: d.role,
-            content: d.content,
-          })),
+          url
         }),
       });
 
@@ -45,7 +32,9 @@ const Home: NextPage = () => {
           new Error(`Request failed with status ${response.status}`)
         );
       }
-      setChats((prev) => [...prev, data.result as Message]);
+
+      console.log(data);
+      // urlをセット
     } catch (error) {
       console.log(error);
     } finally {
@@ -55,14 +44,28 @@ const Home: NextPage = () => {
 
   return (
     <div className="w-full max-w-2xl bg-white md:rounded-lg my-10 mx-auto">
-      <div className="md:p-10">
-        {chats.slice(1, chats.length).map((chat, index) => {
-          return <Chat role={chat.role} content={chat.content} key={index} />;
-        })}
-      </div>
-      <InputForm onSubmit={handleSubmit} />
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-center p-4 border-t border-gray-200"
+      >
+        <input
+          type="text"
+          value={url}
+          className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+          placeholder="メッセージを入力..."
+          onChange={(event) => setUrl(event.target.value)}
+        />
+        <button
+          type="submit"
+          className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg focus:outline-none focus:ring focus:border-blue-300"
+        >
+          送信
+        </button>
+      </form>
+
+      {urlLoaded !== '' ? <iframe src={urlLoaded} /> : null}
     </div>
   );
-};
+}
 
 export default Home;
