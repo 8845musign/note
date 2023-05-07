@@ -15,7 +15,7 @@ const Home: NextPage = () => {
 
     try {
       // ChatGPT APIと通信
-      const response = await fetch("/api/extractKeyword", {
+      const response = await fetch("/api/langchain/extractKeywords", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -49,6 +49,7 @@ const Home: NextPage = () => {
         className="flex items-center p-4 border-t border-gray-200"
       >
         <input
+          disabled={isSubmitting}
           type="text"
           value={url}
           className="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring focus:border-blue-300"
@@ -56,6 +57,7 @@ const Home: NextPage = () => {
           onChange={(event) => setUrl(event.target.value)}
         />
         <button
+          disabled={isSubmitting}
           type="submit"
           className="ml-4 px-4 py-2 bg-blue-500 text-white rounded-lg focus:outline-none focus:ring focus:border-blue-300"
         >
